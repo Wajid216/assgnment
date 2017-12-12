@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <link href="Content/bootstrap.css" rel="stylesheet" />
+    <link href="Content/bootstrap-theme.css" rel="stylesheet" />
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/html" id="data">
+        <tr>
+            <td>
+                <input type="checkbox" name="sid[]" value="{{Id}}" />
+            </td>
+            <td>{{Name}}</td>
+        </tr>
+    </script>
+
+    <script>
+
+        function GetAllBatches()
+        {
+         var Batches = document.getElementById("Allbatches");
+
+            var abc = new XMLHttpRequest();
+
+            abc.open("GET", "api/GetBatches");
+
+            abc.onload = function ()
+            {
+                if (abc.response && abc.response != '')
+                {
+                  var batches = JSON.parse(abc.response);
+                   for (var i = 0; i < batches.length; i++)
+                    {
+                       var batch = batches[i].Name;
+                       Batches.innerHTML +="<option value='" + batch +"'>" + batch + "</option>";
+                   }
+                }
+            };
+            
+            abc.send();
+    }
+       $(document).ready(function () {
+
+           GetAllBatches()
+        });
+
+       function batch_onchange(Allbatches) {
+           var BatchSelect = Allbatches.value;
+           var xyz = new XMLHttpRequest();
+            xyz.open("GET", "api/GetStudents/" + Allbatches.value);
+
+           xyz.onload = function () {
+
+                if (xyz.response && xyz.response != '') {
+
+                    var data = document.getElementById('data').innerHTML;
+
+                    var studentdata = document.getElementById('studentdata');
+
+                    var students = JSON.parse(xyz.response);
+
+                    studentdata.innerHTML = "";
+
+
+                    for (var i = 0; i < students.length; i++) {
+
+                        var stu = students[i];
+
+                        studentdata.innerHTML += data.replace('{{id}}', stu.id).replace('{{Name}}', stu.Name);
+                    }
+                }
+
+           };
+            xyz.send();
+        }
+ </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Batch</label>
+                    <select onchange="batch_onchange(this)" id="Allbatches" class="form-control">
+                        <option value="-1">Select..</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-responsive table-bordered">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" name="selectall" value="" /></th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentdata"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <input type="button" class="btn-primary btn btn-block" name="name" value="Mark Attandance" />
+            </div>
+        </div>
+    </div>
+</body>
+</html>
